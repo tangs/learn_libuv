@@ -1,0 +1,15 @@
+*.d
+*.obj
+*.o
+*.tlog
+*.lastbuildstate
+*.idb
+*.pdb
+*~
+*.swp
+
+.DS_Store
+
+log.txt
+build/
+out/
