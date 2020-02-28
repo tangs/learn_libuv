@@ -14,6 +14,11 @@ void alloc_buffer(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) {
   buf->len = suggested_size;
 }
 
+void write_cb(uv_write_t* req, int status) {
+  if (status) fprintf(stderr, "write err:%d\n", status);
+  else printf("write succ.\n");
+}
+
 void echo_read(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
   if (nread == UV_EOF) {
     //buffer[buf_offset++] = 0;
@@ -26,7 +31,15 @@ void echo_read(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
   }
   // memcpy(buffer + buf_offset, buf->base, nread);
   // buf_offset += nread;
-  printf("Read len:%zd, str:\n%s", nread, buf->base);
+  printf("Read len:%zd, writeable:%d, str:\n%s", nread, uv_is_writable(stream), buf->base);
+
+  char* str = "HTTP/1.1 200 OK\nContent-Length: 13\nContent-Type: text/plain\n\nApp is ready.";
+  uv_buf_t res_buf = {
+    .base = str,
+    .len = strlen(str)
+  };
+  uv_write_t req1; 
+  uv_write(&req1, stream, &res_buf, 1, write_cb);
 
   // uv_read_start(stream, alloc_buffer, echo_read);
   // print_buf_hex(buf->base, nread); 
