@@ -19,10 +19,10 @@ clean:
 	@rm -rf $(OBJ_DIR)/*.o
 	@rm -rf out/server
 
-server.out: server.o mkdir
+server.out: server.o
 	cc $(CFLAGS) -o out/server.out $(OBJ_DIR)/server.o -luv
 
-client.out: client.o mkdir
+client.out: client.o
 	cc $(CFLAGS) -o out/client.out $(OBJ_DIR)/client.o -luv
 
 server.o: server.c utils.h 
