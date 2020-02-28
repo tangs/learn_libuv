@@ -6,6 +6,8 @@
 
 const int DEFAULT_BACKLOG = 1;
 //char alloc_buffer[1024];
+//char buffer[1024*1024];
+//int buf_offset;
 
 void alloc_buffer(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) {
   buf->base = malloc(suggested_size); 
@@ -14,15 +16,20 @@ void alloc_buffer(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) {
 
 void echo_read(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
   if (nread == UV_EOF) {
-    fprintf(stderr, "read EOF.\n");
+    //buffer[buf_offset++] = 0;
+    printf("read end:.\n");
     return;
   }
   if (nread < 0) {
     fprintf(stderr, "Read error:%s, nread:%zd\n", uv_err_name(nread), nread);
     return;
   }
-  printf("Read len:%zd\n", nread);
-  print_buf_hex(buf->base, nread); 
+  // memcpy(buffer + buf_offset, buf->base, nread);
+  // buf_offset += nread;
+  printf("Read len:%zd, str:\n%s", nread, buf->base);
+
+  // uv_read_start(stream, alloc_buffer, echo_read);
+  // print_buf_hex(buf->base, nread); 
 }
 
 void on_new_connection(uv_stream_t *server, int status) {
@@ -34,6 +41,7 @@ void on_new_connection(uv_stream_t *server, int status) {
   uv_tcp_t *client = (uv_tcp_t*)malloc(sizeof(uv_tcp_t));
   uv_tcp_init(uv_default_loop(), client);
   if (uv_accept(server, (uv_stream_t*)client) == 0) {
+    // buf_offset = 0;
     uv_read_start((uv_stream_t*)client, alloc_buffer, echo_read);
   } else {
     uv_close((uv_handle_t*)client, NULL);
